@@ -11,6 +11,7 @@ def load_data(file):
         data = [[int(x) for x in y] for y in data]
     return data
 
+
 def split_list(data): 
     first_column = []
     second_column = []
@@ -26,6 +27,7 @@ def rank_list(lst):
 
 def difference(x, y):
     return x - y
+
 
 def run_part1():
     total_difference = 0
@@ -59,3 +61,4 @@ if __name__ == '__main__':
     run_part1()
     run_part2()
     print('end')
+    
