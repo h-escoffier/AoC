@@ -95,10 +95,10 @@ def run_part3():
     print(sum)
 
 
-
 if __name__ == '__main__': 
     print('start')
     run_part1()
     run_part2()
     run_part3()
     print('end')
+    
