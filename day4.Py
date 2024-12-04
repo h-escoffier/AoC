@@ -4,7 +4,7 @@
 def load_data(file):
     with open(file, "r") as file:
         data = [list(line.strip()) for line in file]
-    # Test data 
+    # Example data 
     # data = [['M', 'M', 'M', 'S', 'X', 'X', 'M', 'A', 'S', 'M'],
     #         ['M', 'S', 'A', 'M', 'X', 'M', 'S', 'M', 'S', 'A'],
     #         ['A', 'M', 'X', 'S', 'X', 'M', 'A', 'A', 'M', 'M'],
