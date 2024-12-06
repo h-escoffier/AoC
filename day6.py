@@ -73,7 +73,7 @@ def mouvement(data, guard, direction, counter, counter_direction, list_of_alread
 
 
 def run_part1_with_animation():
-    data = load_data('data/day6_input_test.txt') 
+    data = load_data('data/day6_input.txt') 
     guard = find_guard(data)  
     direction = 'up'
     animate_movement(data, guard, direction) 
@@ -102,7 +102,7 @@ def animate_movement(data, guard_start, direction_start):
         guard_marker.set_data([y], [x]) 
         return guard_marker, im
     # Animation time
-    ani = FuncAnimation(fig, update, frames=100, interval=500, blit=False)
+    ani = FuncAnimation(fig, update, frames=100, interval=1, blit=False)
     plt.show()
 
 
@@ -305,6 +305,7 @@ def run_part2():
 if __name__ == "__main__":
     print('start')
     run_part1()
+    run_part1_with_animation()
     run_part2()
     print('end')
 
