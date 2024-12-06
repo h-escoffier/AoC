@@ -3,7 +3,10 @@
 
 from tqdm import tqdm
 import itertools
+import sys
 
+# print(sys.getrecursionlimit())
+sys.setrecursionlimit(1500)
 
 # 1st Part
 def load_data(file):
@@ -88,36 +91,16 @@ def run_part1():
             
         
 # 2nd Part
-def correct_update(): 
-    pass 
-
-
-def create_all_permutations(lst):
-    perm = list(permutations(lst))
-    return perm
-
-
+# Approache 1 
 def is_valid_ticket_advanced(rules_before, rules_after, update):
     i = 0
     for elm in update:
         if len(update) == i + 1:
-            # print(update)
-            # print('Here1')
             return True, update, []
         indices = get_indices(rules_after, elm)
-        # print(indices)
         values = get_values(rules_before, indices)
-        # print(values)
-        # if values in update[i:]:
         intersection = list(set(values) & set(update[i:]))
         if len(intersection) != 0:
-            # print('Here2')
-            # print(i)
-            # print(update)
-            # print(update[i:])
-            # print(update[:i])
-            # exit()
-            # update[i:]
             return False, update[i:], update[:i]
         i += 1
 
@@ -139,33 +122,26 @@ def is_valid_ticket_light(rules_before, rules_after, update):
             return False, []
         i += 1
 
-def run_part2():
+
+# Is valid but too long 
+def run_part2_long():  # 2 long = too long :D 
     sum = 0 
     sum_corrected_only = 0
     counter = 0
-    # update_to_correct = []
     rules, updates = load_data("data/day5_input.txt")
     rules, updates = parser(rules, updates)
     rules = int_converter(rules)
     updates = int_converter(updates)   
     rules_before, rules_after = split_rules(rules)
-    # for update in tqdm(iterable=updates, desc='Progress Report - 2 - Part 1'):
     for update in updates:
-
         counter += 1
-        # print(update)
         is_valid, update_to_shuffle, update_ok = is_valid_ticket_advanced(rules_before, rules_after, update)
         if is_valid:
-            # print(update_to_shuffle)
             middle_value = get_middle_value(update)
             sum += middle_value
         if not is_valid:
-            print(counter)
-            # update_to_correct.append(update)
-            # perm = create_all_permutations(update_to_shuffle)
-            # for p in tqdm(iterable=perm, desc='Progress Report - Perm'):
+            # print(counter)
             for p in tqdm(itertools.permutations(update_to_shuffle), desc='Progress Report - Perm', leave=False):
-            # for p in perm : 
                 potential_update = update_ok + list(p)
                 is_valid, update_good = is_valid_ticket_light(rules_before, rules_after, potential_update)
                 if is_valid:
@@ -174,17 +150,80 @@ def run_part2():
                     sum_corrected_only += middle_value
                     sum += middle_value
                     break
-    # for update in tqdm(iterable=update_to_correct, desc='Progress Report - 2 - Part 2'):
-    #     perm = create_all_permutations(update)
-    #     for p in tqdm(iterable=perm, desc='Progress Report - Perm'):
-    #         is_valid = is_valid_ticket(rules_before, rules_after, p)
-    #         if is_valid:
-    #             middle_value = get_middle_value(p)
-    #             sum_corrected_only += middle_value
-    #             sum += middle_value
-    #             break      
     print(sum)
     print(sum_corrected_only)
+
+
+# Approache 2
+def is_valid_optimize(rules_before, rules_after, update, is_blocked):
+    i = 0
+    is_blocked += 1
+    if is_blocked == 1000: 
+        return False, update
+    for elm in update:
+        if len(update) == i + 1:
+            return True, update
+        indices = get_indices(rules_after, elm)
+        values = get_values(rules_before, indices)
+        intersection = list(set(values) & set(update[i:]))
+        if len(intersection) != 0:
+            print('HERE')
+            # n = len(intersection)
+            # elm = update.pop(i)
+            # update.insert(n, elm)
+            # is_valid_optimize(rules_before, rules_after, update, is_blocked)
+            # return False, update
+        i += 1
+
+def is_valid_ticket_light(rules_before, rules_after, update):
+    i = 0
+    for elm in update:
+        if len(update) == i + 1:
+            # print('Here1')
+            return True, update
+        indices = get_indices(rules_after, elm)
+        # print(indices)
+        values = get_values(rules_before, indices)
+        # print(values)
+        # if values in update[i:]:
+        intersection = list(set(values) & set(update[i:]))
+        if len(intersection) != 0:
+            # print('Here2')
+            return False, []
+        i += 1
+
+def run_part2(): 
+    sum = 0 
+    counter = 0
+    # sum_corrected_only = 0
+    rules, updates = load_data("data/day5_input_test.txt")
+    rules, updates = parser(rules, updates)
+    rules = int_converter(rules)
+    updates = int_converter(updates)   
+    rules_before, rules_after = split_rules(rules)
+    for update in tqdm(iterable=updates, desc='Progress Report - 2'):
+        is_blocked = 0
+        counter += 1
+        # print(counter)
+        # print(update)
+        # is_valid, new_solution = is_valid_optimize(rules_before, rules_after, update, is_blocked)
+        is_valid, update = is_valid_optimize(rules_before, rules_after, update, is_blocked)
+        if is_valid:
+            middle_value = get_middle_value(update)
+            sum += middle_value
+        # elif not is_valid: 
+        #     print('HERE2')
+        #     exit()
+        # else: 
+        #     print(new_solution)
+        #     is_valid, new_solution = is_valid_optimize(rules_before, rules_after, new_solution)
+        #     if is_valid:
+        #         middle_value = get_middle_value(new_solution)
+        #         sum += middle_value
+        #         sum_corrected_only += middle_value
+        # # break 
+    print(sum) 
+    # print(sum_corrected_only)
 
 
 if __name__ == '__main__': 
