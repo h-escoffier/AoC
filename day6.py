@@ -6,6 +6,9 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import itertools
+import matplotlib.colors as mcolors
+import matplotlib.cm as cm
+
 
 
 def load_data(file): 
@@ -72,38 +75,70 @@ def mouvement(data, guard, direction, counter, counter_direction, list_of_alread
         return guard, new_direction, counter, counter_direction, list_of_already_visited
 
 
+def animate_movement(data, guard_start, direction_start):
+    fig, ax = plt.subplots()
+    ax.set_xticks([])  # Remove x-axis ticks
+    ax.set_yticks([])  # Remove y-axis ticks
+    ax.set_xticklabels([])  # Remove x-axis labels
+    ax.set_yticklabels([])  # Remove y-axis labels
+
+    # Create the grid based on the input data
+    grid = np.array([list(row) for row in data])
+
+    # Create a custom colormap with 'obstacles' in red, 'visited' cells in black, and others in white
+    cmap = mcolors.ListedColormap(['white', 'red', 'black'])  # White for unvisited, Black for visited, Red for obstacles
+    bounds = [0, 0.5, 1, 1.5]  # 0 for unvisited, 1 for visited, 2 for obstacles
+    norm = mcolors.BoundaryNorm(bounds, cmap.N)
+
+    # Initialize the grid with zeros (unvisited)
+    grid_display = np.zeros_like(grid, dtype=int)
+
+    # Mark obstacles (assuming '#' represents obstacles in the data)
+    for i in range(len(grid)):
+        for j in range(len(grid[i])):
+            if grid[i, j] == '#':  # Assuming obstacles are represented by '#'
+                grid_display[i, j] = 2  # Mark obstacles with 2 (red)
+
+    # Show the grid
+    im = ax.imshow(grid_display, cmap=cmap, interpolation='nearest')
+    list_of_already_visited = [guard_start]
+
+    # Marker for the guard position
+    guard_marker, = ax.plot([], [], marker='o', color='black', markersize=5) 
+    print(guard_marker)
+
+    def update(frame):
+        nonlocal guard_start, direction_start, list_of_already_visited
+        guard_start, direction_start, _, _, list_of_already_visited = mouvement(data, guard_start, direction_start, frame, 0, list_of_already_visited)
+
+        # Update the grid (grid of characters for logic, display is handled separately)
+        grid = np.array([list(row) for row in data])
+        x, y = guard_start
+        grid[x, y] = '^'
+
+        # Update the visited cells in the display grid
+        for visited_x, visited_y in list_of_already_visited:
+            grid_display[visited_x, visited_y] = 1  # Mark as visited (1 for black)
+
+
+        # Update the guard position
+        guard_marker.set_data([y], [x])
+
+        # Update the display grid with the new data
+        im.set_data(grid_display)
+
+        return guard_marker, im
+    
+    # Animation time
+    ani = FuncAnimation(fig, update, frames=100, interval=1, blit=False)
+    plt.show()
+
+
 def run_part1_with_animation():
     data = load_data('data/day6_input.txt') 
     guard = find_guard(data)  
     direction = 'up'
     animate_movement(data, guard, direction) 
-
-
-def animate_movement(data, guard_start, direction_start):
-    fig, ax = plt.subplots()
-    ax.set_xticks(np.arange(len(data[0])))
-    ax.set_yticks(np.arange(len(data)))
-    ax.set_xticklabels([])
-    ax.set_yticklabels([])
-    
-    grid = np.array([list(row) for row in data])
-    im = ax.imshow(grid == '.', cmap='Greys', interpolation='nearest')
-    guard_marker, = ax.plot([], [], 'go', markersize=12) 
-
-    def update(frame):
-        nonlocal guard_start, direction_start
-        guard_start, direction_start, _, _, _= mouvement(data, guard_start, direction_start, frame, 0, [])
-        # Update the grid
-        grid = np.array([list(row) for row in data])
-        x, y = guard_start
-        grid[x, y] = '^' 
-        # Update the guard
-        im.set_data(grid == '.')  
-        guard_marker.set_data([y], [x]) 
-        return guard_marker, im
-    # Animation time
-    ani = FuncAnimation(fig, update, frames=100, interval=1, blit=False)
-    plt.show()
 
 
 def run_part1(): 
@@ -305,7 +340,7 @@ def run_part2():
 if __name__ == "__main__":
     print('start')
     run_part1()
-    run_part1_with_animation()
+    # run_part1_with_animation()
     run_part2()
     print('end')
 
