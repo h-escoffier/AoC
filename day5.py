@@ -5,8 +5,6 @@ from tqdm import tqdm
 import itertools
 import sys
 
-# print(sys.getrecursionlimit())
-sys.setrecursionlimit(1500)
 
 # 1st Part
 def load_data(file):
@@ -45,7 +43,6 @@ def is_valid_ticket(rules_before, rules_after, update):
     i = 0
     for elm in update:
         if len(update) == i + 1:
-            # print('Here1')
             return True
         indices = get_indices(rules_after, elm)
         # print(indices)
@@ -154,12 +151,9 @@ def run_part2_long():  # 2 long = too long :D
     print(sum_corrected_only)
 
 
-# Approache 2
-def is_valid_optimize(rules_before, rules_after, update, is_blocked):
+# Approach 2
+def is_valid_ticket_advanced_2(rules_before, rules_after, update):
     i = 0
-    is_blocked += 1
-    if is_blocked == 1000: 
-        return False, update
     for elm in update:
         if len(update) == i + 1:
             return True, update
@@ -167,63 +161,57 @@ def is_valid_optimize(rules_before, rules_after, update, is_blocked):
         values = get_values(rules_before, indices)
         intersection = list(set(values) & set(update[i:]))
         if len(intersection) != 0:
-            print('HERE')
-            # n = len(intersection)
-            # elm = update.pop(i)
-            # update.insert(n, elm)
-            # is_valid_optimize(rules_before, rules_after, update, is_blocked)
-            # return False, update
-        i += 1
+            return False, update
+        i += 1    
 
-def is_valid_ticket_light(rules_before, rules_after, update):
+def fix_invalid_ticket(rules_before, rules_after, update):
     i = 0
     for elm in update:
         if len(update) == i + 1:
-            # print('Here1')
             return True, update
         indices = get_indices(rules_after, elm)
-        # print(indices)
         values = get_values(rules_before, indices)
-        # print(values)
-        # if values in update[i:]:
         intersection = list(set(values) & set(update[i:]))
         if len(intersection) != 0:
-            # print('Here2')
-            return False, []
-        i += 1
+            idx = [update.index(value) for value in intersection]
+            max_index = max(idx)
+            new_update = []
+            # Permutation 
+            for i in range(len(update)):
+                if update[i] == elm: 
+                    new_update.append(update[max_index])
+                elif update[i] == update[max_index]:
+                    new_update.append(elm)  
+                else: 
+                    new_update.append(update[i])
+            if len(intersection) != 0:
+                return fix_invalid_ticket(rules_before, rules_after, new_update)  # Recursion time 
+        i += 1  
+
 
 def run_part2(): 
     sum = 0 
-    counter = 0
-    # sum_corrected_only = 0
-    rules, updates = load_data("data/day5_input_test.txt")
+    sum_corrected_only = 0
+    to_fix = []
+    rules, updates = load_data("data/day5_input.txt")
     rules, updates = parser(rules, updates)
     rules = int_converter(rules)
     updates = int_converter(updates)   
     rules_before, rules_after = split_rules(rules)
-    for update in tqdm(iterable=updates, desc='Progress Report - 2'):
-        is_blocked = 0
-        counter += 1
-        # print(counter)
-        # print(update)
-        # is_valid, new_solution = is_valid_optimize(rules_before, rules_after, update, is_blocked)
-        is_valid, update = is_valid_optimize(rules_before, rules_after, update, is_blocked)
+    for update in tqdm(iterable=updates, desc='Progress Report - 2 - Part 1'):
+        is_valid, invalid_update = is_valid_ticket_advanced_2(rules_before, rules_after, update)
         if is_valid:
             middle_value = get_middle_value(update)
             sum += middle_value
-        # elif not is_valid: 
-        #     print('HERE2')
-        #     exit()
-        # else: 
-        #     print(new_solution)
-        #     is_valid, new_solution = is_valid_optimize(rules_before, rules_after, new_solution)
-        #     if is_valid:
-        #         middle_value = get_middle_value(new_solution)
-        #         sum += middle_value
-        #         sum_corrected_only += middle_value
-        # # break 
-    print(sum) 
-    # print(sum_corrected_only)
+        else: 
+            to_fix.append(invalid_update)
+    for update in tqdm(iterable=to_fix, desc='Progress Report - 2 - Part 2'):     
+            is_valid, fix_update = fix_invalid_ticket(rules_before, rules_after, update) 
+            if is_valid: 
+                middle_value = get_middle_value(fix_update)
+                sum_corrected_only += middle_value
+    # print(sum)
+    print(sum_corrected_only)
 
 
 if __name__ == '__main__': 
