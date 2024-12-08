@@ -43,7 +43,7 @@ def calculate_combinations(values, calcul, output):
 
 def run_part1():
     sum = 0
-    all_output, all_values = load_data('data/day7_input_test.txt')
+    all_output, all_values = load_data('data/day7_input.txt')
     for output, values in tqdm(zip(all_output, all_values), desc='Progress Report - 1'):
         is_valid = create_combination(output, values)
         if is_valid:
