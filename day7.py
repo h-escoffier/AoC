@@ -1,4 +1,4 @@
-# Day5 - AoC 2024 
+# Day7 - AoC 2024 
 
 
 from itertools import product
