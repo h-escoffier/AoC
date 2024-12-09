@@ -35,10 +35,14 @@ def find_antinodes(data, p1, p2):
     distance = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
     delta_x = (x2 - x1) / distance
     delta_y = (y2 - y1) / distance
+    # print(delta_x, delta_y)
     # Before
     xb = x1 - distance * delta_x
     yb = y1 - distance * delta_y
     pb = (yb, xb)
+    print(distance)
+    print(pb)
+    exit()
     # After 
     xa = x2 + distance * delta_x
     ya = y2 + distance * delta_y
@@ -107,7 +111,7 @@ def find_antinodes_advanced(data, p1, p2):
 
 
 def run_part2(): 
-    data = load_data('data/day8_input_test.txt')
+    data = load_data('data/day8_input.txt')
     frequencies, frequencies_positions = find_frequencies(data)
     # print('Nb_of_diff_freq ' + str(len(frequencies))) 
     all_antinodes = []
@@ -117,12 +121,12 @@ def run_part2():
             antinodes = find_antinodes_advanced(data, duo[0], duo[1])
             all_antinodes += antinodes
     all_antinodes = list(set(all_antinodes))
-    print(all_antinodes)
+    # print(all_antinodes)
     print(len(all_antinodes))
 
 
 if __name__ == '__main__': 
     print('start')
-    # run_part1()
+    run_part1()
     run_part2()
     print('end')

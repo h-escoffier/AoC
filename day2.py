@@ -54,6 +54,7 @@ def is_almost_monotonic(report):
             monotonic_sub_reports.append(sub_report)
     return monotonic_sub_reports
 
+
 def is_almost_adj_levels(report):
     monotonic_sub_reports = []
     n = len(report)
