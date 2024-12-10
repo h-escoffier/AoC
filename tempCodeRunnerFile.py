@@ -1,9 +1,6 @@
 # Day8 - AoC 2024 
 
 
-# Remove distance bc useless :(
-
-
 from tqdm import tqdm
 from itertools import combinations
 import math
