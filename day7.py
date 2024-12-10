@@ -20,6 +20,7 @@ def load_data(file):
 
 def create_combination(output, values): 
     for combination in product(['+', 'x'], repeat=len(values) - 1):
+        print(combination)
         is_ok = calculate_combinations(values, combination, output)
         if is_ok:
             return True

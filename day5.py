@@ -214,8 +214,67 @@ def run_part2():
     print(sum_corrected_only)
 
 
+# Try to redo the pop 'bug'
+def is_valid_optimize(rules_before, rules_after, update, is_blocked):
+    print(update)
+    print(is_blocked)
+    i = 0
+    is_blocked += 1
+    if is_blocked == 500: 
+        print('HERE')
+        return False, update
+    for elm in update:
+        if len(update) == i + 1:
+            print(update)
+            return True, update
+        indices = get_indices(rules_after, elm)
+        values = get_values(rules_before, indices)
+        intersection = list(set(values) & set(update[i:]))
+        if len(intersection) != 0:
+            print('HERE1')
+            # n = len(intersection)
+            elm = update.pop(i)
+            # update.insert(i + n, elm)
+            # new_list = update[:i] + [elm] + update[i+1:i+n] + update[i+n+1:]
+            new_list = update[:i+1]  # Take everything before index 'i'
+            new_list.append(elm)   # Add the new element 'elm'
+            new_list.extend(update[i+1:]) 
+            print(new_list)
+            is_valid_optimize(rules_before, rules_after, new_list, is_blocked)
+            # return False, update
+        i += 1
+
+
+def run_pop(): 
+    sum = 0 
+    sum_corrected_only = 0
+    to_fix = []
+    rules, updates = load_data("data/day5_input.txt")
+    rules, updates = parser(rules, updates)
+    rules = int_converter(rules)
+    updates = int_converter(updates)   
+    rules_before, rules_after = split_rules(rules)
+    for update in tqdm(iterable=updates, desc='Progress Report - 2 - Part 1'):
+        is_valid, invalid_update = is_valid_optimize(rules_before, rules_after, update, 0)
+        exit()
+        if is_valid:
+            middle_value = get_middle_value(update)
+            sum += middle_value
+        else: 
+            to_fix.append(invalid_update)
+    for update in tqdm(iterable=to_fix, desc='Progress Report - 2 - Part 2'):     
+            is_valid, fix_update = fix_invalid_ticket(rules_before, rules_after, update) 
+            if is_valid: 
+                middle_value = get_middle_value(fix_update)
+                sum_corrected_only += middle_value
+    # print(sum)
+    print(sum_corrected_only)
+
+
+
 if __name__ == '__main__': 
     print('start')
-    run_part1()
-    run_part2()
+    # run_part1()
+    # run_part2()
+    run_pop()
     print('end')
