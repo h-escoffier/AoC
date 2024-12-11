@@ -2,8 +2,6 @@
 
 
 from tqdm import tqdm
-from collections import deque 
-import cProfile
 
 
 def load_data(file):
@@ -19,7 +17,7 @@ def rules(stone):
         return [str(int(stone)*2024)]
     else:
         where_split = len(stone) // 2 
-        return stone[:where_split], stone[where_split:]
+        return stone[:where_split], str(int(stone[where_split:]))
     
 
 def blinck(data):
@@ -35,43 +33,67 @@ def blinck(data):
     return new_data
 
 
-def blinck_advanced(data): 
-    new_data = deque()
-    for stone in data:
-        new_stone_s = rules(stone)
-        new_data.extend(new_stone_s)
-    return new_data
-
-
 def run_part1(): 
     blinck_data = load_data('data/day11_input.txt')
-    for _ in tqdm(iterable=range(75), desc='Progress Report'): 
-        blinck_data = blinck_advanced(blinck_data)
+    for _ in tqdm(iterable=range(25), desc='Progress Report'): 
+        # print(blinck_data)
+        blinck_data = blinck(blinck_data)
     print(len(blinck_data)) 
+
+
+def format_part2(data):
+    data_dict = {}
+    for stone in data: 
+        if stone not in data_dict: 
+            data_dict[stone] = 1
+        else: 
+            data_dict[stone] += 1
+    return data_dict
+
+
+def blinck_advanced(data_dict):
+    new_dict = data_dict.copy()
+    for stone in data_dict.keys():
+        new_stone_s = rules(stone)
+        if len(new_stone_s) == 1: 
+            new_stone_s = new_stone_s[0]
+            if new_stone_s in new_dict.keys(): 
+                new_dict[new_stone_s] += data_dict[stone]
+            else: 
+                new_dict[new_stone_s] = data_dict[stone]
+        else : 
+            part1, part2 = new_stone_s
+            if part1 in new_dict.keys(): 
+                new_dict[part1] += data_dict[stone]
+            else:
+                new_dict[part1] = data_dict[stone]
+            if part2 in new_dict.keys(): 
+                new_dict[part2] += data_dict[stone]
+            else:
+                new_dict[part2] = data_dict[stone]
+        new_dict[stone] -= data_dict[stone]
+    return new_dict
+
+
+def remove_all_zero(data_dict):
+    new_dict = data_dict.copy()
+    for stone in data_dict.keys():
+        if data_dict[stone] == 0:
+            del new_dict[stone]
+    return new_dict
 
 
 def run_part2():
     blinck_data = load_data('data/day11_input.txt')
-    for i in tqdm(iterable=range(75), desc='Progress Report'): 
-        blinck_data = blinck_advanced(blinck_data)
-        if len(blinck_data) > 25000000:
-            where_split = len(blinck_data) // 2 
-            blinck_data_part1 = blinck_data[where_split:]
-            blinck_data_part2 = blinck_data[:where_split]
-            when = i
-            break
-    print('Break')
-    for i in tqdm(range(when, 75)): 
-        print(i)
-        blinck_data_part1 = blinck_advanced(blinck_data_part1)
-        blinck_data_part2 = blinck_advanced(blinck_data_part2)
-        print(len(blinck_data_part1))
-        print(len(blinck_data_part2))
-    print(len(blinck_data))
+    data_dict = format_part2(blinck_data)  
+    for _ in tqdm(iterable=range(75), desc='Progress Report'): 
+        data_dict = blinck_advanced(data_dict)
+        data_dict = remove_all_zero(data_dict)
+    print(sum(data_dict.values()))
 
 
 if __name__ == '__main__': 
     print('start')
-    # run_part1()
+    run_part1()
     run_part2()
     print('end')

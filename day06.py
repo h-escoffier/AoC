@@ -332,38 +332,38 @@ def simulate_guard(grid, start_pos, start_dir):
 
 
 def run_part2(): 
-    grid, guard_pos, guard_dir = read_input("data/day6_input_aurelien.txt")
+    grid, guard_pos, guard_dir = read_input("data/day6_input.txt")
     infinite_loop_positions = simulate_guard(grid, guard_pos, guard_dir)
     # print(infinite_loop_positions)
     print(len(infinite_loop_positions)) 
     return infinite_loop_positions
 
 
-def read_cyrille_output(file_path): 
-    all_positions_cyrille = []
-    with open(file_path, 'r') as f:
-        for line in f.readlines():
-            x, y = line.strip().split(',')
-            all_positions_cyrille.append((int(y), int(x)))
-    print(len(all_positions_cyrille))
-    return all_positions_cyrille
+# def read_cyrille_output(file_path): 
+#     all_positions_cyrille = []
+#     with open(file_path, 'r') as f:
+#         for line in f.readlines():
+#             x, y = line.strip().split(',')
+#             all_positions_cyrille.append((int(y), int(x)))
+#     print(len(all_positions_cyrille))
+#     return all_positions_cyrille
 
 
 if __name__ == "__main__":
     print('start')
     # run_part1()
     # run_part1_with_animation()
-    loop_position = run_part2()
-    cyrille_pos = read_cyrille_output('data/serialc_output.txt')
-    diff = False
-    diff_pos = []
-    for pos in cyrille_pos: 
-        if pos not in loop_position: 
-            diff = True
-            diff_pos.append(pos)
-            # print(pos)
-    if not diff: 
-        print('No difference')
-    print(len(diff_pos))
+    run_part2()
+    # cyrille_pos = read_cyrille_output('data/serialc_output.txt')
+    # diff = False
+    # diff_pos = []
+    # for pos in cyrille_pos: 
+    #     if pos not in loop_position: 
+    #         diff = True
+    #         diff_pos.append(pos)
+    #         # print(pos)
+    # if not diff: 
+    #     print('No difference')
+    # print(len(diff_pos))
     print('end')
 
