@@ -111,39 +111,38 @@ def create_animation(folder_path):
     for file in tqdm(iterable=sorted(os.listdir(folder_path), key=alphanum_key), desc='Creating Gif'):
         file_path = os.path.join(folder_path, file)
         images.append(io.imread(file_path))
-    frame_durations = [0.1] * (len(images) - 1) + [2]  # e.g., 0.1s per frame, 2s for the last frame
-    io.mimsave('day14_gif.gif', images, duration=frame_durations, loop=0)
+    frame_durations = [0.1] * (len(images) - 1) + [3000]  # Increase the last frame duration
+    io.mimsave('figures/gif_day14.gif', images, duration=frame_durations, loop=0)
 
 
 def run_part2():  # 7371 
-    # size_y = 103 # 7 
-    # size_x = 101 # 11
-    # data = load_data("data/day14_input.txt")
-    # counter = 0
-    # good_value = 7371
-    # updated_data = data
-    # for i in tqdm(iterable=range(0, 7372), desc='Progress Report - 2'): 
-    #     bathroom = create_grid(size_y, size_x)
-    #     for robot in updated_data: 
-    #         bathroom = place_robot(bathroom, robot)
-    #     if counter == good_value: 
-    #         # print(i)
-    #         # print(counter)
-    #         plot_heatmap_from_matrix(bathroom, i)
-    #         good_value += 100
-    #     counter += 1
-    #     data = updated_data
-    #     updated_data = []
-    #     for robot in data: 
-    #         new_pos = calcul_new_pos(robot, size_y, size_x)
-    #         updated_data.append([new_pos, robot[1]])
+    size_y = 103 # 7 
+    size_x = 101 # 11
+    data = load_data("data/day14_input.txt")
+    counter = 0
+    snapshot = 100
+    updated_data = data
+    for i in tqdm(iterable=range(0, 7372), desc='Progress Report - 2'): 
+        bathroom = create_grid(size_y, size_x)
+        for robot in updated_data: 
+            bathroom = place_robot(bathroom, robot)
+        if counter == snapshot or i == 7371: 
+            # print(i)
+            # print(counter)
+            plot_heatmap_from_matrix(bathroom, i)
+            snapshot += 100
+        counter += 1
+        data = updated_data
+        updated_data = []
+        for robot in data: 
+            new_pos = calcul_new_pos(robot, size_y, size_x)
+            updated_data.append([new_pos, robot[1]])
     create_animation('day14_plot')
 
 
 if __name__ == '__main__': 
     print('start')
-    # position_test()
-    # run_part1()
+    run_part1()
     run_part2()
     print('end')
 
