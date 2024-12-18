@@ -179,16 +179,20 @@ def perimeter_from_region_advanced(data, region):
             # print(square_corners[0])
             # print(square_corners[3])
             # print()
-            if (square_corners[0] in all_corners) and (square_corners[3] in all_corners):
+            if (square_corners[0] in all_corners) and (square_corners[3] in all_corners) and (square_corners[1] not in all_corners) and (square_corners[2] not in all_corners):
                 corner_that_i_hate.append(corner)
-            elif (square_corners[1] in all_corners) and (square_corners[2] in all_corners): 
+                print(corner)
+            if (square_corners[1] in all_corners) and (square_corners[2] in all_corners) and (square_corners[0] not in all_corners) and (square_corners[3] not in all_corners): 
             # elif (square_corners[1] and square_corners[2]) in all_corners:
                 corner_that_i_hate.append(corner)
+                print(corner)
                 # remaining_corners.append(corner) 
     line_of_fences = len(list(set(remaining_corners)))
     # final = list(set(all_possible_corners).intersection(set(corner_that_i_hate)))
     # print(list(set(final)))
-    yeah = len(list(set(corner_that_i_hate))) // 9 
+    # print(corner_that_i_hate)
+    line_of_fences += len(corner_that_i_hate)
+    yeah = len(list(set(corner_that_i_hate)))
     return line_of_fences, yeah
 
 
@@ -214,7 +218,7 @@ def corners_of_position(position):
 
 
 def run_part1():
-    data = load_data('data/day12_input.txt')
+    data = load_data('data/day12_input_test3.txt')
     sum = 0
     regions = identify_regions(data)
     for region in regions: 
@@ -230,12 +234,12 @@ def run_part2():
     regions = identify_regions(data)
     for region in regions: 
         area = len(region[1])
-        yeah = 0
+        # yeah = 0
         # print(region[0])
         line_of_fences, yeah = perimeter_from_region_advanced(data, region)
         # print(line_of_fences)
-        yeah = yeah * 2 
-        sum += area * (line_of_fences + yeah)
+        # yeah = yeah * 2 
+        sum += area * (line_of_fences)
     print(sum)
 
 
@@ -244,3 +248,7 @@ if __name__ == '__main__':
     # run_part1()
     run_part2()
     print('end')
+
+
+# Output : 834546 Too low 
+# Real output : 839780 
