@@ -1,6 +1,12 @@
-# Day15 - AoC 2024 
+# Day16 - AoC 2024 
 
 import numpy as np
+from queue import Queue
+import sys
+from tqdm import tqdm
+
+
+sys.setrecursionlimit(5000)
 
 
 def load_data(path):
@@ -10,102 +16,115 @@ def load_data(path):
     for line in lines:
         line = line.strip()
         maze.append(list(line))
-    maze_matrix = np.array([list(row) for row in maze])
-    return maze_matrix
+    return maze
 
 
-def find_start(maze):
-    pos_start = np.where(maze == "S")
-    return (pos_start[0][0], pos_start[1][0])
+def print_maze(maze):
+    for row in maze:
+        print("".join(row))
+
+def print_path(maze, path):
+    maze_copy = [row[:] for row in maze]  # Create a copy to avoid modifying the original maze
+    for y, x in path:
+        maze_copy[x][y] = "O"
+    print_maze(maze_copy)
 
 
-def calculate_new_pos(pos, direction):
-    moves = {"^": (-1, 0), "v": (1, 0), "<": (0, -1), ">": (0, 1)}
-    return (pos[0] + moves[direction][0], pos[1] + moves[direction][1])
+def find_all_paths(maze, start_pt, end_pt):
+    
+    maze[start_pt[1]][start_pt[0]] = "."
+    maze[end_pt[1]][end_pt[0]] = "."
+
+    def dfs(current_path, visited):
+        current = current_path[-1]
+        # If the end is reached, store the path
+        if current == end_pt:
+            all_paths.append(list(current_path))
+            return
+        current_col, current_row = current
+        directions = [(0, -1), (1, 0), (0, 1), (-1, 0)]  # UP, RIGHT, DOWN, LEFT
+        for d_col, d_row in directions:
+            new_col, new_row = current_col + d_col, current_row + d_row
+            new_pos = (new_col, new_row)
+            if (0 <= new_row < len(maze) and 0 <= new_col < len(maze[0]) and 
+                maze[new_row][new_col] == "." and new_pos not in visited):
+                visited.add(new_pos)
+                current_path.append(new_pos)
+                dfs(current_path, visited)
+                # Backtrack
+                current_path.pop()
+                visited.remove(new_pos)
+    
+    all_paths = []
+
+    dfs([start_pt], {start_pt})
+    return all_paths
 
 
-def change_direction(current_direction):
-    directions = ["^", "<", "v", ">"]  
-    return directions[(directions.index(current_direction) + 1) % 4]
+def find_s_and_e(maze):
+    for row in range(len(maze)):
+        for col in range(len(maze[0])):
+            if maze[row][col] == "S":
+                start_pt = (col, row)
+            if maze[row][col] == "E":
+                end_pt = (col, row)
+    return start_pt, end_pt
 
 
-def is_other_direction_explorable(maze, pos, score, path, current_direction):
-    directions = ["^", "v", "<", ">"]
-    valid_moves = []
-    for direction in directions:
-        new_pos = calculate_new_pos(pos, direction)
-        if (
-            maze[new_pos] in [".", "E"]  
-            and new_pos not in path  
-            and direction != current_direction 
-        ):
-            valid_moves.append((new_pos, direction, score, path))
-    return valid_moves
+def calcul_score_path(path):
+    nb_steps = len(path)
+    cost_turns = 0 
+    direction = '>'
+    old_pos = path[0]
+    for pos in path[1:]: 
+        is_change, new_direction = is_direction_change(old_pos, pos, direction)
+        if is_change:
+            # print('Change')
+            nb_rotation = count_rotations(direction, new_direction)
+            # print(nb_rotation)
+            cost_turns = cost_turns + (1000)
+        old_pos = pos
+        direction = new_direction
+    return nb_steps + cost_turns
+        
+
+def count_rotations(old_direction, new_direction):
+    directions = {">": 0, "^": 1, "<": 2, "v": 3}
+    return (directions[new_direction] - directions[old_direction]) % 4
 
 
-def cost_of_the_direction_changment(current_direction, new_direction):
-    directions = ['^', '<', 'v', '>']
-    current_index = directions.index(current_direction)
-    new_index = directions.index(new_direction)
-    nb_changes = (new_index - current_index) % 4
-    return 1000*nb_changes
-
-
-def next_move(maze, start, direction, score, path, all_valid_moves, best_score, is_exit, original_maze):
-    new_pos = calculate_new_pos(start, direction)
-    if maze[new_pos] == "E":
-        maze = original_maze.copy() # Restore previous state
-        is_exit = True # Handle exit condition
-        score += 1
-        return maze, new_pos, direction, score, path, all_valid_moves, best_score, is_exit
-    if maze[new_pos] == ".":
-        score += 1
-        # maze = original_maze.copy()
-        maze[new_pos] = "P"
-        path.append(new_pos)
-        # Check if there are other directions to explore
-        valid_moves = is_other_direction_explorable(maze, new_pos, score, path, direction)
-        if valid_moves:
-            all_valid_moves.extend(valid_moves)
-        return maze, new_pos, direction, score, path, all_valid_moves, best_score, is_exit
-    if maze[new_pos] == "#":
-        # print(len(all_valid_moves))
-        print(maze)
-        old_direction = direction
-        # Return to the last crossroad
-        # maze = original_maze.copy()
-        last_pos_to_explore = all_valid_moves.pop()
-        pos = last_pos_to_explore[0]
-        direction = last_pos_to_explore[1]
-        score = last_pos_to_explore[2]
-        path = last_pos_to_explore[3]
-        score += cost_of_the_direction_changment(direction, old_direction)
-        return maze, pos, direction, score, path, all_valid_moves, best_score, is_exit
+def is_direction_change(old_pos, new_pos, dir):
+    old_y, old_x = old_pos
+    new_y, new_x = new_pos
+    if new_y > old_y:
+        new_dir = 'v'
+    elif new_y < old_y:
+        new_dir = '^'
+    elif new_x > old_x:
+        new_dir = '>'
+    elif new_x < old_x:
+        new_dir = '<'
+    if new_dir == dir:
+        return False, new_dir
+    else:
+        return True, new_dir
 
 
 def run_part1():
-    best_score = float("inf") 
-    maze = load_data("data/input_test.txt")
-    original_maze = maze.copy()
-    start = find_start(maze)
-    direction = ">"
-    all_valid_moves = is_other_direction_explorable(maze, start, 0, [start], direction)
-    path = []
-    score = 0
-    is_exit = False
-    i = 0 
-    while not is_exit or all_valid_moves:
-        print(all_valid_moves)
-        maze, start, direction, score, path, all_valid_moves, best_score, is_exit = next_move(
-            maze, start, direction, score, path, all_valid_moves, best_score, is_exit, original_maze
-        )
-        if is_exit and score < best_score:
-            print(f"New best path found with score: {score}")
+    maze = load_data("data/day16_input.txt")
+    best_score = np.inf
+    start, end = find_s_and_e(maze)
+    paths = find_all_paths(maze, start, end)
+    print(len(paths))
+    print('')
+    for path in tqdm(iterable=paths, desc='Progress Report - Part 1'):
+        score = calcul_score_path(path)
+        if score < best_score:
             best_score = score
-        if i == 10: 
-            exit()
-        i += 1
-    print(f"Lowest score: {best_score}")
+            best_path = path
+    print(best_score - 1)
+    print('')
+    print_path(maze, best_path)
 
 
 if __name__ == "__main__":
