@@ -12,7 +12,7 @@ def load_data(path):
         for line in file:
             line = line.strip()
             if not line:
-                continue# skip empty lines
+                continue  # skip empty lines
 
             if ':' in line and '->' not in line:
                 var, val = line.split(':')
