@@ -1,12 +1,7 @@
 # Day16 - AoC 2024 
 
-import numpy as np
-from queue import Queue
-import sys
-from tqdm import tqdm
 
-
-sys.setrecursionlimit(5000)
+import heapq
 
 
 def load_data(path):
@@ -23,6 +18,7 @@ def print_maze(maze):
     for row in maze:
         print("".join(row))
 
+
 def print_path(maze, path):
     maze_copy = [row[:] for row in maze]  # Create a copy to avoid modifying the original maze
     for y, x in path:
@@ -31,17 +27,15 @@ def print_path(maze, path):
 
 
 def find_all_paths(maze, start_pt, end_pt, best_score):
-    
     maze[start_pt[1]][start_pt[0]] = "."
     maze[end_pt[1]][end_pt[0]] = "."
     best_score_container = [best_score]  
-
     def dfs(current_path, visited):
         current = current_path[-1]
         # If the end is reached, store the path
         current_score = calcul_score_path(current_path)
         if current_score > best_score_container[0]:
-            print('Score too high, current best score:', best_score_container[0])
+            # print('Score too high, current best score:', best_score_container[0])
             return
         elif current == end_pt:
             all_paths.append(list(current_path))
@@ -61,7 +55,6 @@ def find_all_paths(maze, start_pt, end_pt, best_score):
                 # Backtrack
                 current_path.pop()
                 visited.remove(new_pos)
-    
     all_paths = []
 
     dfs([start_pt], {start_pt})
@@ -117,21 +110,60 @@ def is_direction_change(old_pos, new_pos, dir):
         return True, new_dir
 
 
+def dijkstra_algo(maze, start, end):
+    directions = [(-1,0,'U'), (1,0,'D'), (0,-1,'L'), (0,1,'R')]
+    rows, cols = len(maze), len(maze[0])
+    visited = set()
+    heap = []
+
+    # (score, x, y, previous_direction)
+    heapq.heappush(heap, (0, start[0], start[1], (0,1,'R')))
+
+    while heap:
+        score, x, y, prev_dir = heapq.heappop(heap)
+        if (x, y, prev_dir) in visited:
+            continue
+        visited.add((x, y, prev_dir))
+
+        if (x, y) == end:
+            return score
+
+        for dx, dy, dir_label in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < rows and 0 <= ny < cols and maze[nx][ny] != '#':
+                if prev_dir is None or dir_label == prev_dir:
+                    new_score = score + 1
+                else:
+                    new_score = score + 1001
+                heapq.heappush(heap, (new_score, nx, ny, dir_label))
+    return float('inf') 
+
+
+# def run_part1():
+#     maze = load_data("data/day16_input.txt")
+#     # maze = load_data("data/input_test.txt")
+#     best_score = np.inf
+#     start, end = find_s_and_e(maze)
+#     paths = find_all_paths(maze, start, end, best_score)
+#     print(len(paths))
+#     print('')
+#     for path in tqdm(iterable=paths, desc='Progress Report - Part 1'):
+#         score = calcul_score_path(path)
+#         if score < best_score:
+#             best_score = score
+#             best_path = path
+#     print(best_score - 1)
+#     print('')
+#     print_path(maze, best_path)
+
+
 def run_part1():
     maze = load_data("data/day16_input.txt")
-    best_score = np.inf
+    # maze = load_data("data/input_test.txt")
+    # print_maze(maze)
     start, end = find_s_and_e(maze)
-    paths = find_all_paths(maze, start, end, best_score)
-    print(len(paths))
-    print('')
-    for path in tqdm(iterable=paths, desc='Progress Report - Part 1'):
-        score = calcul_score_path(path)
-        if score < best_score:
-            best_score = score
-            best_path = path
-    print(best_score - 1)
-    print('')
-    print_path(maze, best_path)
+    best_score = dijkstra_algo(maze, start, end)
+    print(best_score)  
 
 
 if __name__ == "__main__":
