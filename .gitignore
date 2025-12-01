@@ -1,4 +1,4 @@
 # Ignore temporary files  
 .DS_Store
 tempCodeRunnerFile.py
-
+.venv
