@@ -1,13 +1,13 @@
 # Day2 - AoC 2025 
 
 
-
-# Part1
 def read_input(path): 
     with open(path) as f: 
         content = [line.split(',') for line in f.readlines()][0]
     return content
 
+
+# Part1
 def identify_ranges(content): 
     pairs = []
     for pair in content: 
@@ -84,7 +84,7 @@ def run_part2():
 
 if __name__ == '__main__': 
     print('start')
-    # run_part1()
+    run_part1()
     run_part2()
     print('end')
 
