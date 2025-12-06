@@ -4,6 +4,7 @@
 import pandas as pd
 
 
+# Part1
 def read_input(path): 
     with open(path) as f: 
         content = [line.strip().split(' ') for line in f.readlines()]
@@ -17,7 +18,6 @@ def read_input(path):
     return new_content
 
 
-# Part1 
 def sum_cols(df): 
     total = 0 
     last_row = df.iloc[-1].to_list()
