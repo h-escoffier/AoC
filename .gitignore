@@ -2,3 +2,4 @@
 .DS_Store
 tempCodeRunnerFile.py
 .venv
+__pycache__
