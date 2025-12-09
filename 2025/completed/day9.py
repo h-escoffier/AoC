@@ -5,7 +5,12 @@
 
 
 from itertools import combinations
+from tqdm import tqdm
 from shapely import Polygon
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import imageio.v2 as imageio
+import os, shutil
 
 
 def read_input(path): 
@@ -74,11 +79,72 @@ def run_part2():
     content = read_input('2025/data/input_day9.txt')
     # content = read_input('2025/data/input_test.txt')
     b_area, best_pts = identify_rectangle_inside(content)
+    generate_gif(content)
     print(b_area, best_pts)
-    
+
+
+# Plot 
+def generate_gif(content):
+    polygon = Polygon(content)
+    map_poly = gpd.GeoDataFrame(index=[0], geometry=[polygon])
+    frames = []
+    os.makedirs('frames', exist_ok=True)
+
+    best_area = 0
+    best_rect = None
+    frame_id = 0
+    counter = 0
+
+    for pts1, pts2 in tqdm(combinations(content, 2)):
+        is_best = False
+
+        pts3, pts4 = find_other_pts(pts1, pts2)
+        test = Polygon([pts1, pts3, pts2, pts4])
+
+        ok = test.covered_by(polygon)
+        area = calcul_area(pts1, pts2)
+
+        counter += 1
+
+        if ok and area > best_area:
+            best_area = area
+            best_rect = test     
+            is_best = True       
+
+        if counter % 500 == 0 or is_best:
+            fig, ax = plt.subplots(figsize=(6, 6))
+            fig.patch.set_facecolor('#222222')
+            map_poly.boundary.plot(ax=ax, linewidth=1, color="#444444")
+            map_poly.plot(ax=ax, color="#444444", alpha=1, edgecolor="#444444", linewidth=0.5)
+
+            if best_rect:
+                gpd.GeoSeries([best_rect]).boundary.plot(ax=ax, color="#E29D55", linewidth=0.5)
+                gpd.GeoSeries([best_rect]).plot(ax=ax, color="#E29D55", alpha=1, edgecolor="#E29D55", linewidth=0.5)
+            
+            if ok:
+                gpd.GeoSeries([test]).boundary.plot(ax=ax, color="#A8DB69", linewidth=0.5)
+                gpd.GeoSeries([test]).plot(ax=ax, color="#A8DB69", alpha=0.5, edgecolor="#A8DB69", linewidth=0.5)
+            else: 
+                gpd.GeoSeries([test]).boundary.plot(ax=ax, color="#EBDD49", linewidth=0.5)
+                gpd.GeoSeries([test]).plot(ax=ax, color="#EBDD49", alpha=0.9, edgecolor="#EBDD49", linewidth=0.5)
+
+            ax.set_axis_off()
+
+            fpath = f"frames/frame_{frame_id:04d}.png"
+            plt.savefig(fpath, dpi=140)
+            plt.close()
+            frames.append(fpath)
+            frame_id += 1
+
+    with imageio.get_writer("2025/figures/gif_day9.gif", mode="I", fps=10, loop=0) as writer:
+        for f in frames:
+            writer.append_data(imageio.imread(f))
+
+    shutil.rmtree("frames")
+
 
 if __name__ == '__main__': 
     print('start')
-    run_part1()
+    # run_part1()
     run_part2()
     print('end')
