@@ -43,9 +43,11 @@ def create_model(output, buttons):
 
     for i in range(len(buttons)): 
         var_string = f'x{i} = h.addVariable(lb = 0, ub = 1, type=HighsVarType.kInteger)' # 
+        # print(var_string)
         exec(var_string)
     for j in range(len(output)): 
         var_string = f'k{j} = h.addVariable(lb = 0, type=HighsVarType.kInteger)'
+        # print(var_string)
         exec(var_string)
 
     # Create constraints 
@@ -63,6 +65,7 @@ def create_model(output, buttons):
         else: 
             condit_str = f'2*k{i}+1'
         cnstr_string = f'h.addConstr({all_to_press} == {condit_str})'
+        # print(cnstr_string)
         exec(cnstr_string)
     
     # Set objective 
@@ -71,6 +74,7 @@ def create_model(output, buttons):
         all_x_list.append(f'x{i}')
     all_x_list_string = '+'.join(all_x_list)
     obj_string = f'h.minimize({all_x_list_string})'
+    # print(obj_string)
     exec(obj_string)
 
     h.getSolution()
