@@ -1,0 +1,162 @@
+---
+format: html
+---
+
+
+Suggestion of solution in R based on the work of Aurélien Ginolhac (https://github.com/ginolhac/advent_of_code/blob/main/2015/07.qmd)
+
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+library(fastmap)
+```
+
+
+## Part 1
+
+bitwNot(a)
+bitwAnd(a, b)
+bitwOr(a, b)
+bitwXor(a, b)
+
+bitwShiftL(a, n)
+bitwShiftR(a, n)
+
+```{r}
+parse_circuit <- function(dict, line) {
+  assg <- str_split_1(line, " -> ")
+  op <- str_extract(line, "[A-Z]+") 
+  if (is.na(op)) { # Case 'x -> z'
+    key_l <- str_extract(assg[1], "^[a-z]+") # If 'x -> z'
+    if (is.na(key_l)) { # If '1 -> x'
+        l <- str_extract(assg[1], "[0-9]+") |> as.integer()
+        dict$set(assg[2], l)
+    } else {
+      dict$set(assg[2], dict$get(key_l))
+    }
+  } else {
+    op <- str_extract(line, "[A-Z]+")
+    switch(op,
+      "OR" = {
+        l <- dict$get(str_extract(assg[1], "^[a-z]+"))
+        r <- dict$get(str_extract(assg[1], "[a-z]+$"))
+        dict$set(assg[2], bitwOr(l, r))
+      },
+      "AND" = { 
+        key_l <- str_extract(assg[1], "^[a-z]+") # If 'x AND y -> z'
+        if (is.na(key_l)) { # For case: '1 AND x -> z'
+          l <- str_extract(assg[1], "[0-9]+") |> as.integer()
+        } else {
+          l <- dict$get(str_extract(assg[1], "[a-z]+"))
+        }
+        r <- dict$get(str_extract(assg[1], "[a-z]+$"))
+        if (is.na(r)) {
+          r <- str_extract(assg[1], "[0-9]+$") |> as.integer()
+        }
+        dict$set(assg[2], bitwAnd(l, r))
+      },
+      "NOT" = {
+        r <- dict$get(str_extract(assg[1], "[a-z]+$"))
+        # integers are 16 bits and we emulate unsigned integers
+        dict$set(assg[2], (bitwNot(r) + 2^16))
+      },
+      "LSHIFT" = {
+        l <- dict$get(str_extract(assg[1], "^[a-z]+"))
+        r <- str_extract(assg[1], "[0-9]+$") |> as.integer()
+        dict$set(assg[2], bitwShiftL(l, r))
+      },
+      "RSHIFT" = {
+        l <- dict$get(str_extract(assg[1], "^[a-z]+"))
+        r <- str_extract(assg[1], "[0-9]+$") |> as.integer()
+        dict$set(assg[2], bitwShiftR(l, r))
+      },
+      stop("Unknown input")
+    )
+  }
+  dict
+}
+
+
+is_defined <- function(dict, line) {
+  is_ok <- FALSE
+  assg <- str_split_1(line, " -> ")
+  op <- str_extract(line, "[A-Z]+")
+  if (is.na(op) && str_detect(line, "^\\d+")) {
+    is_ok <- TRUE
+  } else {
+    op <- str_extract(line, "[A-Z]+")
+    one <- str_extract(assg[1], "^[a-z]+")
+    if (is.na(one)) {
+      one <- str_extract(assg[1], "[0-9]+$") |> as.integer()
+    }
+    two <- str_extract(assg[1], "[a-z]+$")
+    if (is.na(two)) {
+      two <- str_extract(assg[1], "[0-9]+$") |> as.integer()
+    }
+
+    if (is.integer(one) || dict$has(one)) {
+      if ( is.integer(two) || dict$has(two)) {
+        # print('exist')
+        is_ok <- TRUE
+      }
+    }
+  }
+  is_ok 
+}
+
+
+input <- read_lines(I("123 -> x
+y RSHIFT 2 -> g
+1 AND x -> j
+x OR y -> e
+456 -> y
+x AND y -> d
+x LSHIFT 2 -> f
+NOT x -> h
+j -> v
+NOT y -> i"))
+
+# input <- read_lines("../data/input_day7.txt")
+input <- read_lines("../data/07.txt")
+# str_subset(input, "^[0-9]")
+# str_subset(input, "a")
+
+circuit <- fastmap()
+
+finish <- FALSE
+while (finish == FALSE) {
+  new_input = c()
+  for (l in input) {
+    # message(l)
+    process = is_defined(circuit, l)
+    if (process == TRUE) {
+      parse_circuit(circuit, l) 
+    } else {
+      new_input = c(new_input, l) 
+    }
+  }
+  input = new_input
+  if (is.null(input)) {
+    finish = TRUE
+  }
+}
+
+```
+
+
+```{r}
+for (c in circuit$keys()) {
+  message("key: ", c, ": ", circuit$get(c))
+}
+```
+
+```{r}
+# Part1 solution 
+circuit$get('a')
+```
+
+
+

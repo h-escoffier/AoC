@@ -9,7 +9,6 @@ def readInput(path):
         content = [line.rstrip().split(" ") for line in f.readlines()]
     return content
 
-
 # 123 -> x
 # 456 -> y
 # x AND y -> d
@@ -81,7 +80,9 @@ def applyInstruction(gates, ope, inGate, outGate):
     
 
 def runPart1(): 
-    lines = readInput('2015/data/input_day7.txt')
+    # lines = readInput('2015/data/input_day7.txt')
+    # lines = readInput('2015/data/07.txt')
+    lines = readInput('2015/data/input_test.txt')
     gates = {}
     allProcess = False
     while not allProcess: 
@@ -94,12 +95,14 @@ def runPart1():
         if len(remainingLines) == 0: 
             allProcess = True
         lines = remainingLines
+    print(gates)
     print(gates['a'])
     return gates['a']
 
 
 def runPart2(): 
-    lines = readInput('2015/data/input_day7.txt')
+    # lines = readInput('2015/data/input_day7.txt')
+    lines = readInput('2015/data/07.txt')
     gates = {'b': runPart1()} # c.f. part1
     allProcess = False
     while not allProcess: 
@@ -119,6 +122,6 @@ def runPart2():
 
 if __name__ == '__main__': 
     print('start')
-    # runPart1()
-    runPart2()
+    runPart1()
+    # runPart2()
     print('end')
