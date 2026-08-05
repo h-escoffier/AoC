@@ -8,10 +8,13 @@ def readInput(path):
 
 
 def runPart1(): 
-    lines = readInput('2015/data/input_day8.txt')
+    # lines = readInput('2015/data/input_day8.txt')
+    lines = readInput('2015/data/input_test.txt')
     sumTotal = 0 
     sumString = 0 
     for line in lines: 
+        print('int:', line[0], len(line[0]))
+        print('out:', eval(line[0]), len(eval(line[0])))
         sumTotal += len(line[0])
         sumString += len(eval(line[0]))
     print(sumTotal - sumString)
@@ -45,5 +48,5 @@ def runPart2():
 if __name__ == '__main__': 
     print('start')
     runPart1()
-    runPart2()
+    # runPart2()
     print('end')
