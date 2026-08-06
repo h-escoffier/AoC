@@ -4,6 +4,7 @@
 from tqdm import tqdm 
 from itertools import groupby
 
+
 def runPart1(): 
     input = "1321131112"
     # input = "21"
@@ -26,10 +27,9 @@ def runPart1():
     print(len(input))
 
 
-
 def runPart2():
     input = "1321131112"
-    for _ in tqdm(range(0, 50)): 
+    for _ in tqdm(range(0, 50)): # RLE
         output = ''
         for char, group in groupby(input):
             count = len(list(group)) 
