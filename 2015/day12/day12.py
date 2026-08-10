@@ -242,8 +242,7 @@ def runPart2():
 
 if __name__ == '__main__': 
     print('start')
-    # runPart1()
     # runTest()
+    runPart1()
     runPart2()
-
     print('end')

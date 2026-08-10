@@ -1,0 +1,102 @@
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+```
+
+```{r}
+# input <- read_lines("2015/data/input_day12.txt")
+input <- read_lines("2015/data/input_test.txt")
+input
+```
+
+
+Patterns: 
+
+Locate everything between brackets
+* `"(?<=\\[).*(?=\\])"` 
+* `"(?<=\\{).*(?=\\})"`
+
+Patterns adapted from https://forum.posit.co/t/extract-text-between-brakets/43448/6 
+
+Issue #1
+* If not greedy (.*) `[ abc [ efg ] ]` -> would detect `[ abc [ efg ]`
+
+Solution #1 
+
+Run locate greddy then rerun the locate inside 
+
+e.g. 
+* 1st : `[ abc [ efg ] ]` -> [ abc [ efg ] ]
+* 2nd : `abc [ efg ]` -> [ efg ]
+* 3rd : ` efg `-> None (Stop)
+
+Issue #2
+
+`[ abc [ efg ] [ hij ]]`
+
+Solution #2
+
+Locate all the `[` and `]` independantly and generate the intervals after
+
+select all: 
+
+for `[` find the corresponding `]` 
+
+```{r}
+# tibble(s = input) |>
+#   mutate(
+
+s = tibble(input)
+
+all_red = str_locate_all(s, "red")
+all_bracket_open = str_locate_all(s, "\\{")
+all_bracket_close = str_locate_all(s, "\\}")
+all_square_open = str_locate_all(s, "\\[")
+all_bracket_open = str_locate_all(s, "\\]")
+
+square <- stringr::str_locate_all(string = s, pattern = "(?<=\\[).*(?=\\])")
+bracket <- stringr::str_extract(string = s, pattern = "(?<=\\{).*(?=\\})")
+
+square
+# bracket
+
+# all_bracket_open
+
+```
+
+create a df : 
+
+idx | character 
+===============
+12  | `[`
+14  | `[`
+17  | `]`
+
+
+```{r}
+# all_square_open = str_locate_all(s, "\\[")
+
+idx_square_open <- str_locate_all(s, "\\[")[[1]][, "start"]
+idx_square_close <- str_locate_all(s, "\\]")[[1]][, "start"]
+
+idx_bracket_open <- str_locate_all(s, "\\{")[[1]][, "start"]
+idx_bracket_close <- str_locate_all(s, "\\}")[[1]][, "start"]
+
+for (idx_open in idx_square_open) {
+    for (idx_close in idx_square_close) {
+        if 
+    }
+    print(idx)
+}
+```
+
+
+```{r}
+s <- "[ abc [ efg ] [ hij ] ]"
+pattern <- "\\[(?:[^\\[\\]]++|(?R))*\\]"
+m <- gregexpr(pattern, s, perl = TRUE)
+regmatches(s, m)
+```
