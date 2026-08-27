@@ -1,10 +1,6 @@
 # AoC 2015 - Day18
 
 
-from tqdm import tqdm 
-from itertools import combinations
-
-
 def readInput(path): 
     with open(path, "r") as file:
         lines = file.readlines()
@@ -86,8 +82,9 @@ def countOn(grid):
 
 def runPart1(): 
     grid = readInput("2015/data/input_day18.txt")
+    grid = readInput("2015/data/18.txt")
     # grid = readInput("2015/data/input_test.txt")
-    for i in range(100): 
+    for i in range(4): 
         new_grid = []
         for j in range(len(grid)): 
             new_line = []
@@ -140,5 +137,5 @@ def runPart2():
 if __name__ == '__main__': 
     print('start')
     runPart1()
-    runPart2()
+    # runPart2()
     print('end')
