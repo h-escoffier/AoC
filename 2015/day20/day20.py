@@ -2,6 +2,7 @@
 
 
 from itertools import combinations
+import functools
 
 
 # Thanks to Aurélien for the idea of the decomposition 
@@ -66,28 +67,74 @@ def prime_factors(n):
     return factors
 
 
+def runTest(house):
+    nb_gift = 0
+    # pr_lst = prime_factors(house)
+    # print(pr_lst)
+    # pr_lst.append(1)
+    # elves = []
+    # for i in range(len(pr_lst)): 
+    #     for values in combinations(pr_lst, i): 
+    #         comb = 1
+    #         for v in values: 
+    #             comb *= v
+    #         elves.append(comb)
+    # elves.append(1)
+    # elves = list(sorted(set(elves)))
+    elves = find_divisors_generator_v2(house)
+    for fc in elves: 
+        nb_gift += fc * 10 
+    print(house, nb_gift)
+    # print(house)
+
+
+def find_divisors_generator(n):
+    for i in range(1, int(n**0.5) + 1):  # Loop up to √n
+        if n % i == 0:
+            yield i
+            if i != n // i:
+                yield n // i      # Yield the paired divisor
+
+
+def find_divisors_generator_v2(num): 
+    divisors = []
+    for i in range(1, int(num**0.5) + 1):
+        print(i)
+        if num % i == 0:       # If 'i' is a divisor of 'num'
+            divisors.append(i) # Add 'i' to the list of divisors
+            if i != num // i:
+                divisors.append(num // i)
+        print(divisors)
+    return divisors
+
+
 def runPart1():
     input = 36000000
-    # input = 150
+    # input = 200
     nb_gift = 0
     house = 0
     while nb_gift < input: 
         house += 1
-        pr_lst = prime_factors(house)
+        # pr_lst = prime_factors(house)
         nb_gift = 0
-        pr_lst.append(1)
-        elves = []
-        for i in range(len(pr_lst)): 
-            for values in combinations(pr_lst, i): 
-                comb = 1
-                for v in values: 
-                    comb *= v
-                elves.append(comb)
-        elves.append(1)
-        elves = list(sorted(set(elves)))
-        for fc in elves: 
+        # pr_lst.append(1)
+        # elves = []
+        # for i in range(len(pr_lst)): 
+        #     for values in combinations(pr_lst, i): 
+        #         comb = 1
+        #         for v in values: 
+        #             comb *= v
+        #         elves.append(comb)
+        # elves.append(1)
+        # elves = list(sorted(set(elves)))
+        # print(house, diviseurs)
+        diviseurs = find_divisors_generator_v2(house)
+        for fc in diviseurs: 
             nb_gift += fc * 10 
+        if house % 1000 == 0: 
+            print(house, nb_gift)
         # print(house, nb_gift)
+        # if nb_gift >= input:
     print(house)
 
 # 1297444330 Too high 
@@ -95,6 +142,7 @@ def runPart1():
 
 def runPart2(): 
     input = 36000000
+    # input = 10000
     nb_gift = 0
     house = 0
     elves_register = {}
@@ -118,7 +166,7 @@ def runPart2():
                 pass
             else: 
                 nb_gift += fc * 11 # I should read more carefully
-        # print(house, nb_gift)
+        print('house ',house, 'nb_gift: ', nb_gift)
     print(house)
 
 # 942480 Too high 
@@ -126,6 +174,7 @@ def runPart2():
 
 if __name__ == '__main__': 
     print('start')
+    # runTest(10)
     # runPart1()
     runPart2()
     print('end')
