@@ -55,7 +55,7 @@ def create_all_warriors(weapons, armors, rings):
             total_cost += cost
             total_damage += damage
             total_armor += ar
-            for j in range(0, 6): 
+            for j in range(0, 2): 
                 for combi_a in combinations(armors, j): 
                     total_cost_w, total_damage_w, total_armor_w = total_cost, total_damage, total_armor
                     cost, damage, ar = extract_combination(combi_a)
