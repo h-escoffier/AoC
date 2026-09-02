@@ -38,13 +38,19 @@ def all_possibles_cast(spells, lenght, mode):
     solution_found = False
     for i in range(1, lenght + 1): 
         if solution_found: 
+            # print(i)
             break 
         for combi in product(spells, repeat=i): 
             win, cast_spells = battle(combi, mode)
             if win: 
                 mana = calculate_mana(cast_spells)
+
+                # if combi == ('Poison', 'Recharge', 'Missile', 'Poison', 'Recharge', 'Shield', 'Poison', 'Missile', 'Missile'): 
+                #     print("Mana cost:", mana)
+
                 if mana <= best_mana: 
                     # print(cast_spells)
+                    # print(casst_spells)
                     solution_found = True
                     best_mana = mana
                     # print(best_mana)
@@ -53,13 +59,13 @@ def all_possibles_cast(spells, lenght, mode):
 
 def battle(all_spells, mode): 
 
-    player_hit = 50
-    player_mana = 500
+    player_hit = 50 # 10
+    player_mana = 500 # 250
 
     player = (player_hit, player_mana)
 
     # Change input manually
-    boss_hit = 55 
+    boss_hit = 55 # 13
     boss_damage = 8
 
     boss = (boss_hit, boss_damage)
@@ -68,11 +74,23 @@ def battle(all_spells, mode):
     win = False
     spells_cast = []
     for spell in all_spells: 
+        # print(all_spells)
         spells_cast.append(spell)
         if mode == 'easy':
             end, correct, player, boss, effects, poison = turn(player, boss, spell, effects)
         if mode == 'hard': 
             end, correct, player, boss, effects, poison = hard_turn(player, boss, spell, effects)
+
+        # if all_spells == ('Poison', 'Recharge', 'Missile', 'Poison', 'Recharge', 'Shield', 'Poison', 'Missile', 'Missile'): 
+        # if all_spells == ('Poison', 'Recharge', 'Missile', 'Poison', 'Recharge', 'Shield', 'Poison', 'Missile', 'Missile'): 
+        if all_spells ==('Missile', 'Poison', 'Recharge', 'Missile', 'Shield', 'Poison', 'Missile', 'Missile', 'Missile'): 
+        # if all_spells ==('Poison', 'Missile'): 
+            print("")
+            print(spells_cast)
+            print("Cast: ", spell)
+            print("Player: ", player)
+            print("Boss: ", boss)
+            print("Pending Effects: ", effects)
 
         if end: 
             if not correct: 
@@ -318,5 +336,5 @@ def runPart2():
 if __name__ == '__main__': 
     print('start')
     runPart1()
-    runPart2()
+    # runPart2()
     print('end')
