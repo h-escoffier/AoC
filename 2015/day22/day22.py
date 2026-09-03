@@ -49,8 +49,8 @@ def all_possibles_cast(spells, lenght, mode):
                 #     print("Mana cost:", mana)
 
                 if mana <= best_mana: 
-                    # print(cast_spells)
-                    # print(casst_spells)
+                    print(cast_spells, mana)
+                    # print(len(cast_spells)) # Nb spells
                     solution_found = True
                     best_mana = mana
                     # print(best_mana)
@@ -83,14 +83,14 @@ def battle(all_spells, mode):
 
         # if all_spells == ('Poison', 'Recharge', 'Missile', 'Poison', 'Recharge', 'Shield', 'Poison', 'Missile', 'Missile'): 
         # if all_spells == ('Poison', 'Recharge', 'Missile', 'Poison', 'Recharge', 'Shield', 'Poison', 'Missile', 'Missile'): 
-        if all_spells ==('Missile', 'Poison', 'Recharge', 'Missile', 'Shield', 'Poison', 'Missile', 'Missile', 'Missile'): 
-        # if all_spells ==('Poison', 'Missile'): 
-            print("")
-            print(spells_cast)
-            print("Cast: ", spell)
-            print("Player: ", player)
-            print("Boss: ", boss)
-            print("Pending Effects: ", effects)
+        # if all_spells ==('Poison', 'Recharge', 'Shield', 'Poison', 'Recharge', 'Drain', 'Poison', 'Drain', 'Missile'): 
+        # # if all_spells ==('Poison', 'Missile'): 
+        #     print("")
+        #     print(spells_cast)
+        #     print("Cast: ", spell)
+        #     print("Player: ", player)
+        #     print("Boss: ", boss)
+        #     print("Pending Effects: ", effects)
 
         if end: 
             if not correct: 
@@ -168,6 +168,8 @@ def turn(player, boss, spell_n, effects):
         return end, True, player, boss, up_effects, False
 
     # Boss Attack
+    player_armor = 0 # Correction - thx Cyrille ! 
+
     up_up_effects = []
     for effect in up_effects: 
         if effect[0] == "Shield": 
@@ -218,9 +220,16 @@ def runPart1():
 
 def hard_turn(player, boss, spell_n, effects):
 
+    # print("")
+    # print("--- Player turn ---")
+
+
     player_hit, player_mana = player
     boss_hit, boss_damage = boss
     player_armor = 0
+
+    # print(f"- Player has {player_hit} hit points, {player_mana} mana")
+    # print(f"- Boss has {boss_hit} hit points")
 
     # Hard mode 
     player_hit -= 1
@@ -230,16 +239,21 @@ def hard_turn(player, boss, spell_n, effects):
         boss = (boss_hit, boss_damage)
         return end, False, player, boss, [], False
 
+    # print(f"- Hard mode effect | Player has {player_hit} hit points")
+
     # Effects [Name, last]
     up_effects = []
 
     for effect in effects: 
         if effect[0] == "Shield": 
             player_armor = 7
+            # print(f"Shield's up, timer set to {effect[1] - 1}")
         if effect[0] == "Poison": 
             boss_hit -= 3
+            # print(f"Poison deals 3 damage, timer set to {effect[1] - 1}")
         if effect[0] == "Recharge": 
             player_mana += 101
+            # print(f"Recharge provides 101 mana, timer set to {effect[1] - 1}")
 
         last = effect[1] - 1
         if last != 0:
@@ -258,6 +272,8 @@ def hard_turn(player, boss, spell_n, effects):
     # Player Spell 
     mana_cost, damage, heal, last = which_spell(spell_n)
 
+    # print(f"Player casts {spell_n}")
+
     player_mana -= mana_cost
 
     if player_mana < 0: 
@@ -273,6 +289,9 @@ def hard_turn(player, boss, spell_n, effects):
                 return True, False, player, boss, up_effects, False
         up_effects.append([spell_n, last])
 
+    # print(f"- Player has {player_hit} hit points, {player_mana} mana")
+    # print(f"- Boss has {boss_hit} hit points")
+
     if boss_hit <= 0: 
         end = True # Boss is dead
         player = (player_hit, player_mana)
@@ -280,21 +299,33 @@ def hard_turn(player, boss, spell_n, effects):
         return end, True, player, boss, up_effects, False
 
     # Boss Attack
-    player_hit -= 1  # Not clear that "Player turn" is boss AND player 
-    if player_hit <= 0: 
-        end = True # Player is dead
-        player = (player_hit, player_mana)
-        boss = (boss_hit, boss_damage)
-        return end, False, player, boss, [], False
+
+    # print("")
+    # print("--- Boss turn ---")
+    player_armor = 0 
+    # print(f"- Player has {player_hit} hit points, {player_mana} mana")
+    # print(f"- Boss has {boss_hit} hit points")
+
+    # player_hit -= 1  # Not clear that "Player turn" is boss AND player 
+    # if player_hit <= 0: 
+    #     end = True # Player is dead
+    #     player = (player_hit, player_mana)
+    #     boss = (boss_hit, boss_damage)
+    #     return end, False, player, boss, [], False
+
+    # print(f"- Hard mode effect | Player has {player_hit} hit points")
 
     up_up_effects = []
     for effect in up_effects: 
         if effect[0] == "Shield": 
             player_armor = 7
+            # print(f"Shield's up, timer set to {effect[1] - 1}")
         if effect[0] == "Poison": 
             boss_hit -= 3
+            # print(f"Poison deals 3 damage, timer set to {effect[1] - 1}")
         if effect[0] == "Recharge": 
             player_mana += 101
+            # print(f"Recharge provides 101 mana, timer set to {effect[1] - 1}")
 
         last = effect[1] - 1
         if last != 0:
@@ -314,6 +345,8 @@ def hard_turn(player, boss, spell_n, effects):
     if boss_to_player <= 0: 
         boss_to_player = 1
 
+    # print(f"Boss attacks {boss_to_player}")
+
     player_hit -= boss_to_player
     if player_hit <= 0: 
         end = True # Player is dead
@@ -324,6 +357,10 @@ def hard_turn(player, boss, spell_n, effects):
     end = False
     player = (player_hit, player_mana)
     boss = (boss_hit, boss_damage)
+
+    # print(f"- Player has {player_hit} hit points, {player_mana} mana")
+    # print(f"- Boss has {boss_hit} hit points")
+
     return end, True, player, boss, up_up_effects, False
 
 
@@ -331,10 +368,13 @@ def runPart2():
     spells_n = ["Missile", "Drain", "Shield", "Poison", "Recharge"]
     best_mana = all_possibles_cast(spells_n, 30, 'hard')
     print(best_mana)
+
+    # answer = battle(['Poison', 'Recharge', 'Shield', 'Poison', 'Recharge', 'Drain', 'Poison', 'Drain', 'Missile'], 'hard')
+    # print(answer)
     
 
 if __name__ == '__main__': 
     print('start')
     runPart1()
-    # runPart2()
+    runPart2()
     print('end')
